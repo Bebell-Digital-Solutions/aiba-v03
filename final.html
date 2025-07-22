@@ -3,14 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  
+  
   <title>AIBAD - AI Business Assistant, powered by DeepSeek</title>
+  
+  
+  
+  
   <!-- Preconnect to CDNs for faster loading -->
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   
+  
+  
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  
+  
   
   <!-- Required Libraries -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -336,7 +349,10 @@ const BotIcon = () => (
     
     
     const IconButton = ({ onClick, icon, label, disabled = false, className = '' }) => (
-      <button
+      
+      
+      
+    <button
         type="button"
         onClick={onClick}
         aria-label={label}
@@ -431,42 +447,37 @@ const BotIcon = () => (
     
     
 
-    const ChatMessage = ({ message }) => {
-      const [copyIcon, setCopyIcon] = useState('content_copy');
-      const isBot = message.sender === MessageSender.BOT;
-      const isLoading = isBot && message.text === '' && !message.isError;
+const ChatMessage = ({ message }) => {
+  const [copyIcon, setCopyIcon] = useState('content_copy');
+  const isBot = message.sender === MessageSender.BOT;
+  const isLoading = isBot && message.text === '' && !message.isError;
 
-      const handleCopy = () => {
-        if (message.text) {
-          navigator.clipboard.writeText(message.text);
-          setCopyIcon('done');
-          setTimeout(() => setCopyIcon('content_copy'), 1500);
-        }
-      };
-
+  const handleCopy = () => {
+    if (message.text) {
+      navigator.clipboard.writeText(message.text);
+      setCopyIcon('done');
+      setTimeout(() => setCopyIcon('content_copy'), 1500);
+    }
+  };
+  
+  
+  
       const messageContentClass = message.isError ? 'text-red-500' : 'text-gray-800 dark:text-gray-200';
 
   return (
     <div className="group mb-6">
       <div className="flex items-start gap-4 max-w-4xl mx-auto">
-      
-      
-            <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800">
-              {isBot ? <BotIcon /> : <UserIcon />}
-            </div>
-            <div className="flex-1 pt-1.5 min-w-0">
-              {isLoading ? <LoadingIndicator /> : (
-                <div className={`markdown-content ${messageContentClass}`}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm.default]}>
-                    {message.text}
-                  </ReactMarkdown>
- 
-                </div>
-              )}
-              
-              
-              
-            <div className="flex-1 pt-1.5 min-w-0">
+        <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800">
+          {isBot ? <BotIcon /> : <UserIcon />}
+        </div>
+        <div className="flex-1 min-w-0">
+          {/* Add sender name heading here */}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              {isBot ? "Bot" : "You"}
+            </span>
+          </div>
+          
           {isLoading ? <LoadingIndicator /> : (
             <div className={`markdown-content ${messageContentClass}`}>
               <ReactMarkdown 
@@ -487,24 +498,19 @@ const BotIcon = () => (
               </ReactMarkdown>
             </div>
           )}
-        </div>          
-              
-              
-              
-              
-            
-            </div>
-            {isBot && !isLoading && !message.isError && (
-              <button onClick={handleCopy} className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-rounded text-lg">{copyIcon}</span>
-              </button>
-            )}
-          </div>
         </div>
-      );
-    };
-    
-    
+        {isBot && !isLoading && !message.isError && (
+          <button 
+            onClick={handleCopy} 
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+          >
+            <span className="material-symbols-rounded text-lg">{copyIcon}</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
     
 
     const ChatView = ({ messages }) => {
