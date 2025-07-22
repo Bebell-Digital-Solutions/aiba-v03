@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AIBAD - AI Business Assistant, Powered by DeepSeek</title>
+  <title>AIBAD - AI Business Assistant, powered by DeepSeek</title>
   <!-- Preconnect to CDNs for faster loading -->
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,6 +205,10 @@
       USER: 'user',
       BOT: 'bot',
     };
+    
+    
+    
+    
 
     const SUGGESTIONS = [
       { text: "Outline a digital marketing strategy for a new e-commerce store.", icon: "store" },
@@ -225,7 +229,7 @@
     
     
 
-    const MASTER_PROMPT = `You are AIBA, an expert online business development assistant.
+    const MASTER_PROMPT = `You are AIBAD which stands for AI Business Assistant powered by DeepSeek, an expert online business development assistant.
     Your goal is to provide actionable advice, strategies, and insights for entrepreneurs and businesses looking to grow online.
     Your responses should be practical, clear, and well-structured using markdown.`;
     
@@ -735,7 +739,7 @@ const BotIcon = () => (
               </div>
             </div>
             <p className="hidden sm:block text-center text-xs text-gray-400 dark:text-gray-500 mt-3 px-4">
-              AIBA may display inaccurate info. Always double-check its responses.
+              AIBAD may display inaccurate info. Always double-check its responses.
             </p>
           </div>
         </div>
@@ -798,7 +802,7 @@ const BotIcon = () => (
             setMessages([{
               id: Date.now(),
               sender: 'bot',
-              text: "Hello! I'm Mega-Bot, your AI Business Assistant. How can I help you with your online business today?",
+              text: "Hello! I'm AIBAD, your AI Business Assistant. How can I help you with your online business today?",
               isError: false
             }]);
           }
