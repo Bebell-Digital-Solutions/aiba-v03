@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mega-Bot AI Assistant</title>
+  <title>AIBA - AI Business Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- REPLACE THESE IN YOUR HEAD SECTION -->
+<script src="https://unpkg.com/react-markdown@8.0.7/dist/react-markdown.min.js"></script>
+<script src="https://unpkg.com/remark-gfm@3.0.1/dist/remark-gfm.min.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -114,30 +119,27 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
   
   
   
-  
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/react-markdown/dist/react-markdown.min.js"></script>
-  <script src="https://unpkg.com/remark-gfm/dist/remark-gfm.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- <script type="text/babel">
-    // Debugging initialization
-    console.log("Starting application...");
-    
+
+
+<script type="text/babel">
+    // Safety checks first
+    if (typeof ReactMarkdown === 'undefined') {
+      window.ReactMarkdown = ({ children }) => <div>{children}</div>;
+      console.warn("ReactMarkdown not loaded - using fallback");
+    }
+    if (typeof remarkGfm === 'undefined') {
+      window.remarkGfm = { default: null };
+      console.warn("remarkGfm not loaded - markdown features limited");
+    }
+
     const { useState, useEffect, useRef, useCallback } = React;
+    
+
     
     // Constants
     const MessageSender = {
@@ -152,12 +154,50 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
       { text: "Explain SEO best practices for a small business website in 2024.", icon: "trending_up" },
     ];
 
-    const MASTER_PROMPT = `You are an expert online business development assistant named Mega-Bot.
+    const MASTER_PROMPT = `You are Mega-Bot, an expert online business development assistant.
     Your goal is to provide actionable advice, strategies, and insights for entrepreneurs and businesses looking to grow online.
     Your responses should be practical, clear, and well-structured using markdown.`;
 
     const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
     const DEEPSEEK_MODEL = 'deepseek-chat';
+
+    // Error Boundary Component
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("Error caught:", error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="flex items-center justify-center h-screen bg-white dark:bg-gray-900">
+              <div className="text-center p-8 max-w-md">
+                <h2 className="text-2xl font-bold text-red-500 mb-4">Something went wrong</h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-6">{this.state.error.message}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-brand-pink text-white rounded-full font-medium hover:opacity-90"
+                >
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+    
+    
 
     // Components
     const BotIcon = () => (
@@ -166,11 +206,19 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
       </svg>
     );
 
+
+
+
+
     const UserIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-500 dark:text-gray-400">
         <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
       </svg>
     );
+
+
+
+
 
     const LoadingIndicator = () => (
       <div className="flex flex-col gap-2 w-full">
@@ -179,7 +227,10 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
         <div className="loading-bar-anim h-3 rounded-sm w-3/5"></div>
       </div>
     );
-
+    
+    
+    
+    
     const IconButton = ({ onClick, icon, label, disabled = false, className = '' }) => (
       <button
         type="button"
@@ -210,12 +261,14 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
         setKey('');
         onClose();
       };
+      
+      
 
       return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg">
             <header className="p-5 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Manage API Key</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Manage DeepSeek API Key</h2>
               {currentKey && (
                 <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-700">
                   <span className="material-symbols-rounded text-gray-600 dark:text-gray-300">close</span>
@@ -224,7 +277,7 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
             </header>
             <form onSubmit={handleSubmit}>
               <div className="p-6">
-                <p className="text-gray-600 dark:text-gray-400 mb-6">Your DeepSeek API key is stored in your browser's local storage and is never sent to our servers.</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-6"><strong>Note:</strong> Your DeepSeek API key is stored in your browser's local storage and is never sent to our servers.</p>
                 <input 
                   type="password" 
                   value={key} 
@@ -240,6 +293,10 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
                   <a href="https://platform.deepseek.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-pink hover:underline">Get your API key from DeepSeek Platform</a>
                 </div>
               </div>
+              
+              
+              
+              
               <footer className="px-6 py-4 bg-slate-50 dark:bg-gray-800/50 border-t border-slate-200 dark:border-gray-700 flex justify-between items-center">
                 {currentKey ? (
                   <button type="button" onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600/10 text-red-600 dark:text-red-400 rounded-full font-semibold hover:bg-red-600/20 transition-colors">Delete Key</button>
@@ -270,6 +327,8 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
       const messageContentClass = message.isError ? 'text-red-500' : 'text-gray-800 dark:text-gray-200';
 
       return (
+        
+        
         <div className="group mb-6">
           <div className="flex items-start gap-4 max-w-4xl mx-auto">
             <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800">
@@ -278,9 +337,12 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
             <div className="flex-1 pt-1.5 min-w-0">
               {isLoading ? <LoadingIndicator /> : (
                 <div className={`markdown-content ${messageContentClass}`}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm.default]}>{message.text}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm.default]}>
+                    {message.text}
+                  </ReactMarkdown>
                 </div>
               )}
+            
             </div>
             {isBot && !isLoading && !message.isError && (
               <button onClick={handleCopy} className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
@@ -317,6 +379,8 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
         </div>
       </div>
     );
+    
+    
     
     const Header = ({ onSuggestionClick }) => (
       <header className={'flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:pt-24 lg:pt-28'}>
@@ -528,9 +592,7 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
 
     // Main App Component
     const App = () => {
-      console.log("Rendering App component");
-      
-      const [theme, toggleTheme] = useState(() => {
+      const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem("mega-bot-theme");
         return savedTheme === 'light' || savedTheme === 'dark' 
           ? savedTheme 
@@ -559,6 +621,10 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
         localStorage.setItem('mega-bot-theme', theme);
       }, [theme]);
 
+      const toggleTheme = useCallback(() => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+      }, []);
+
       const handleSaveApiKey = useCallback((key) => {
         try {
           localStorage.setItem('deepseek-api-key', key);
@@ -569,7 +635,7 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
             setMessages([{
               id: Date.now(),
               sender: 'bot',
-              text: "Hello! I'm Mega-Bot, your AI assistant. How can I help you with your online business today?",
+              text: "Hello! I'm Mega-Bot, your AI Business Assistant. How can I help you with your online business today?",
               isError: false
             }]);
           }
@@ -616,8 +682,6 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
             { role: 'user', content: fileContext ? `${fileContext}\n\n${inputText}` : inputText }
           ];
 
-          console.log("Sending to DeepSeek:", messagesForApi);
-          
           const response = await fetch(DEEPSEEK_API_URL, {
             method: 'POST',
             headers: {
@@ -705,7 +769,7 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
             theme={theme}
-            toggleTheme={() => toggleTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+            toggleTheme={toggleTheme}
             onDeleteChat={handleDeleteChat}
             onOpenUploadModal={() => setFileModalOpen(true)}
             onOpenApiKeyModal={() => setShowApiKeyModal(true)}
@@ -738,28 +802,14 @@ createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/im
     };
 
     // Render the app
-    try {
-      console.log("Creating React root...");
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(
-        <React.StrictMode>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary>
           <App />
-        </React.StrictMode>
-      );
-      console.log("React app rendered successfully");
-    } catch (e) {
-      console.error("Fatal rendering error:", e);
-      document.getElementById('root').innerHTML = `
-        <div class="p-8 text-red-500">
-          <h2 class="text-2xl font-bold">Fatal Error</h2>
-          <p>Failed to render application.</p>
-          <p class="mt-2 text-sm">${e.message}</p>
-          <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-brand-pink text-white rounded">
-            Reload Page
-          </button>
-        </div>
-      `;
-    }
-  </script>
+        </ErrorBoundary>
+      </React.StrictMode>
+    );
+</script>
 </body>
 </html>
