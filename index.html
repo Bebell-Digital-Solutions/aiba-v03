@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AIBA - AI Business Assistant</title>
+  <title>AIBAD - AI Business Assistant, Powered by DeepSeek</title>
   <!-- Preconnect to CDNs for faster loading -->
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -275,9 +275,26 @@
 
     // Components
 const BotIcon = () => (
-  <i data-lucide="message-square" className="w-6 h-6 text-brand-pink"></i>
+  <svg 
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-6 h-6 text-brand-pink"
+  >
+    <path d="M12 8V4H8"/>
+    <rect width="16" height="12" x="4" y="8" rx="2"/>
+    <path d="M2 14h2"/>
+    <path d="M20 14h2"/>
+    <path d="M15 13v2"/>
+    <path d="M9 13v2"/>
+  </svg>
 );
-
 
 
 
@@ -948,7 +965,11 @@ const BotIcon = () => (
     };
     
     
-    
+    // At the bottom of your script, right before rendering:
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+});
+
     
    // Initialize Lucide icons
 lucide.createIcons();
