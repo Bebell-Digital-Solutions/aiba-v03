@@ -207,64 +207,30 @@
 
     const { useState, useEffect, useRef, useCallback } = React;
     
-
-    
- // Unique ID generator
-const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;   
-    
-    
+    // Unique ID generator
+    const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;   
     
     // Constants
     const MessageSender = {
       USER: 'user',
       BOT: 'bot',
     };
-    
-    
-    
-    
 
     const SUGGESTIONS = [
       { text: "Outline a digital marketing strategy for a new e-commerce store.", icon: "store" },
-      
-      
       { text: "What are the key elements of a successful SaaS landing page?", icon: "web" },
-      
-      
       { text: "Generate 5 blog post ideas for a content marketing agency.", icon: "lightbulb_outline" },
-      
-      
       { text: "Explain SEO best practices for a small business website in 2024.", icon: "trending_up" },
-      
-      
-      
-      
-      
-      
     ];
-    
-    
-    
-    
-    
-    
 
     const MASTER_PROMPT = `You are AIBAD which stands for AI Business Assistant powered by DeepSeek, an expert online business development assistant.
     Your goal is to provide actionable advice, strategies, and insights for entrepreneurs and businesses looking to grow online.
     Your responses should be practical, clear, and well-structured using markdown.`;
     
-    
-    
-
     const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
     const DEEPSEEK_MODEL = 'deepseek-chat';
 
-    
-    
-    
-    
-    
-    // Error Boundary Component
+    // Error Boundary Component (unchanged)
     class ErrorBoundary extends React.Component {
       constructor(props) {
         super(props);
@@ -300,42 +266,34 @@ const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9
       }
     }
     
-    
-
-    // Components
-const BotIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-6 h-6 text-brand-pink"
-  >
-    <path d="M12 8V4H8"/>
-    <rect width="16" height="12" x="4" y="8" rx="2"/>
-    <path d="M2 14h2"/>
-    <path d="M20 14h2"/>
-    <path d="M15 13v2"/>
-    <path d="M9 13v2"/>
-  </svg>
-);
-
-
+    // Components (unchanged until ApiKeyModal)
+    const BotIcon = () => (
+      <svg 
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6 text-brand-pink"
+      >
+        <path d="M12 8V4H8"/>
+        <rect width="16" height="12" x="4" y="8" rx="2"/>
+        <path d="M2 14h2"/>
+        <path d="M20 14h2"/>
+        <path d="M15 13v2"/>
+        <path d="M9 13v2"/>
+      </svg>
+    );
 
     const UserIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-500 dark:text-gray-400">
         <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
       </svg>
     );
-
-
-
-
 
     const LoadingIndicator = () => (
       <div className="flex flex-col gap-2 w-full">
@@ -345,14 +303,8 @@ const BotIcon = () => (
       </div>
     );
     
-    
-    
-    
     const IconButton = ({ onClick, icon, label, disabled = false, className = '' }) => (
-      
-      
-      
-    <button
+      <button
         type="button"
         onClick={onClick}
         aria-label={label}
@@ -363,34 +315,31 @@ const BotIcon = () => (
       </button>
     );
 
+    // Updated ApiKeyModal with name field
     const ApiKeyModal = ({ onSave, onDelete, onClose, currentKey }) => {
       const [key, setKey] = useState(currentKey || '');
+      const [name, setName] = useState(() => localStorage.getItem('user-name') || '');
       const [error, setError] = useState('');
-      
+
       const handleSubmit = (e) => {
         e.preventDefault();
         if (!key.trim()) {
           setError('API key is required');
           return;
         }
-        onSave(key.trim());
+        onSave(key.trim(), name.trim());
       };
 
       const handleDelete = () => {
         onDelete();
         setKey('');
+        setName('');
         onClose();
       };
-      
-      
 
       return (
-        
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg">
-            
-            
-            
             <header className="p-5 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Manage DeepSeek API Key</h2>
               {currentKey && (
@@ -400,37 +349,48 @@ const BotIcon = () => (
               )}
             </header>
             
-            
-            
-            
             <form onSubmit={handleSubmit}>
-              <div className="p-6">
-                <p className="text-gray-600 dark:text-gray-400 mb-6"><strong>Note:</strong> Your DeepSeek API key is stored in your browser's local storage and is never sent to our servers.</p>
-                <input 
-                  type="password" 
-                  value={key} 
-                  onChange={e => {
-                    setKey(e.target.value);
-                    setError('');
-                  }} 
-                  placeholder="Paste your API key here" 
-                  className="w-full h-12 px-4 rounded-lg bg-slate-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-pink" 
-                />
+              <div className="p-6 space-y-4">
+                <p className="text-gray-600 dark:text-gray-400"><strong>Note:</strong> Your API key and name are stored locally in your browser.</p>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key*</label>
+                  <input 
+                    type="password" 
+                    value={key} 
+                    onChange={e => {
+                      setKey(e.target.value);
+                      setError('');
+                    }} 
+                    placeholder="Paste your API key here" 
+                    className="w-full h-12 px-4 rounded-lg bg-slate-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-pink" 
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Name (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={name} 
+                    onChange={e => setName(e.target.value)} 
+                    placeholder="Enter your name" 
+                    className="w-full h-12 px-4 rounded-lg bg-slate-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-pink" 
+                  />
+                </div>
+                
                 {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
-                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                  <a href="https://platform.deepseek.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-pink hover:underline">Get your API key from DeepSeek Platform</a>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <a href="https://platform.deepseek.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-pink hover:underline">Get your API key</a>
                 </div>
               </div>
-              
-              
-              
               
               <footer className="px-6 py-4 bg-slate-50 dark:bg-gray-800/50 border-t border-slate-200 dark:border-gray-700 flex justify-between items-center">
                 {currentKey ? (
                   <button type="button" onClick={handleDelete} className="px-4 py-2 text-sm bg-red-600/10 text-red-600 dark:text-red-400 rounded-full font-semibold hover:bg-red-600/20 transition-colors">Delete Key</button>
                 ) : <div></div>}
                 <button type="submit" className="px-6 py-2.5 bg-brand-pink text-white rounded-full font-semibold hover:opacity-90 transition-opacity">
-                  {currentKey ? 'Update Key' : 'Save and Start Chatting'}
+                  {currentKey ? 'Save Changes' : 'Save and Start'}
                 </button>
               </footer>
             </form>
@@ -438,81 +398,72 @@ const BotIcon = () => (
         </div>
       );
     };
-    
-    
-    
-    
-    
-    
-    
-    
 
-const ChatMessage = ({ message }) => {
-  const [copyIcon, setCopyIcon] = useState('content_copy');
-  const isBot = message.sender === MessageSender.BOT;
-  const isLoading = isBot && message.text === '' && !message.isError;
+    // Updated ChatMessage to use stored name
+    const ChatMessage = ({ message }) => {
+      const [copyIcon, setCopyIcon] = useState('content_copy');
+      const isBot = message.sender === MessageSender.BOT;
+      const isLoading = isBot && message.text === '' && !message.isError;
+      const userName = localStorage.getItem('user-name') || 'You';
 
-  const handleCopy = () => {
-    if (message.text) {
-      navigator.clipboard.writeText(message.text);
-      setCopyIcon('done');
-      setTimeout(() => setCopyIcon('content_copy'), 1500);
-    }
-  };
-  
-  
-  
+      const handleCopy = () => {
+        if (message.text) {
+          navigator.clipboard.writeText(message.text);
+          setCopyIcon('done');
+          setTimeout(() => setCopyIcon('content_copy'), 1500);
+        }
+      };
+
       const messageContentClass = message.isError ? 'text-red-500' : 'text-gray-800 dark:text-gray-200';
 
-  return (
-    <div className="group mb-6">
-      <div className="flex items-start gap-4 max-w-4xl mx-auto">
-        <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800">
-          {isBot ? <BotIcon /> : <UserIcon />}
-        </div>
-        <div className="flex-1 min-w-0">
-          {/* Add sender name heading here */}
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-gray-700 dark:text-gray-300">
-              {isBot ? "Bot" : "You"}
-            </span>
-          </div>
-          
-          {isLoading ? <LoadingIndicator /> : (
-            <div className={`markdown-content ${messageContentClass}`}>
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm.default]}
-                components={{
-                  h2: ({node, ...props}) => <h2 className="text-xl font-bold mt-6 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700" {...props} />,
-                  h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-4 mb-2 text-brand-pink" {...props} />,
-                  p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
-                  ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-1 my-3" {...props} />,
-                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 space-y-1 my-3" {...props} />,
-                  li: ({node, ...props}) => <li className="pl-2" {...props} />,
-                  strong: ({node, ...props}) => <strong className="font-semibold text-brand-pink" {...props} />,
-                  hr: ({node, ...props}) => <hr className="my-4 border-t border-gray-200 dark:border-gray-700" {...props} />,
-                  a: ({node, ...props}) => <a className="text-brand-pink hover:underline" {...props} />
-                }}
-              >
-                {message.text}
-              </ReactMarkdown>
+      return (
+        <div className="group mb-6">
+          <div className="flex items-start gap-4 max-w-4xl mx-auto">
+            <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800">
+              {isBot ? <BotIcon /> : <UserIcon />}
             </div>
-          )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {isBot ? "Bot" : userName}
+                </span>
+              </div>
+              
+              {isLoading ? <LoadingIndicator /> : (
+                <div className={`markdown-content ${messageContentClass}`}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm.default]}
+                    components={{
+                      h2: ({node, ...props}) => <h2 className="text-xl font-bold mt-6 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-4 mb-2 text-brand-pink" {...props} />,
+                      p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
+                      ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-1 my-3" {...props} />,
+                      ol: ({node, ...props}) => <ol className="list-decimal pl-5 space-y-1 my-3" {...props} />,
+                      li: ({node, ...props}) => <li className="pl-2" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-semibold text-brand-pink" {...props} />,
+                      hr: ({node, ...props}) => <hr className="my-4 border-t border-gray-200 dark:border-gray-700" {...props} />,
+                      a: ({node, ...props}) => <a className="text-brand-pink hover:underline" {...props} />
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                </div>
+              )}
+            </div>
+            {isBot && !isLoading && !message.isError && (
+              <button 
+                onClick={handleCopy} 
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+              >
+                <span className="material-symbols-rounded text-lg">{copyIcon}</span>
+              </button>
+            )}
+          </div>
         </div>
-        {isBot && !isLoading && !message.isError && (
-          <button 
-            onClick={handleCopy} 
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
-          >
-            <span className="material-symbols-rounded text-lg">{copyIcon}</span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
-    
+      );
+    };
 
+    // ChatView remains unchanged
     const ChatView = ({ messages }) => {
       const chatEndRef = useRef(null);
       
@@ -529,55 +480,48 @@ const ChatMessage = ({ message }) => {
         </div>
       );
     };
-    
-    
-    
-    
-    
-    
-    
-    
-    
-const SuggestionCard = ({ text, icon, onClick }) => (
-  <div onClick={onClick} className="group cursor-pointer p-5 flex-shrink-0 w-56 h-56 flex flex-col justify-between rounded-2xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors duration-200">
-    <h4 className="text-base font-medium text-gray-800 dark:text-gray-200">{text}</h4>
-    <div className="self-end w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(0,0,0,0.1)] dark:bg-gradient-to-br dark:from-gray-600 dark:via-gray-700 dark:to-gray-800 dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),inset_0_-2px_4px_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:bg-gradient-to-tr group-hover:from-[#df1783] group-hover:to-[#fd5d93] group-hover:shadow-none">
-      <span className="material-symbols-rounded text-2xl text-transparent bg-clip-text bg-gradient-to-br from-gray-600 to-gray-800 dark:from-gray-200 dark:to-gray-400 group-hover:text-white group-hover:bg-none">
-        {icon}
-      </span>
-    </div>
-  </div>
-);
-    
-    
-    
-    
-    
-    
-    
-    const Header = ({ onSuggestionClick }) => (
-      <header className={'flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:pt-24 lg:pt-28'}>
-        <div className="max-w-4xl mx-auto">
-          <div>
-            <h1 className="text-5xl sm:text-6xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-purple-500">Hello, there</h1>
-            <p className="text-4xl sm:text-5xl font-medium text-gray-400 dark:text-gray-500 mt-2">How can I help you today?</p>
-          </div>
-          <div className="mt-16 sm:mt-24">
-            <div className="flex gap-5 pb-4 -mx-4 px-4 overflow-x-auto">
-              {SUGGESTIONS.map((s, i) => (
-                <SuggestionCard 
-                  key={i} 
-                  text={s.text} 
-                  icon={s.icon} 
-                  onClick={() => onSuggestionClick(s.text)} 
-                />
-              ))}
-            </div>
-          </div>
+
+    // SuggestionCard remains unchanged
+    const SuggestionCard = ({ text, icon, onClick }) => (
+      <div onClick={onClick} className="group cursor-pointer p-5 flex-shrink-0 w-56 h-56 flex flex-col justify-between rounded-2xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors duration-200">
+        <h4 className="text-base font-medium text-gray-800 dark:text-gray-200">{text}</h4>
+        <div className="self-end w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(0,0,0,0.1)] dark:bg-gradient-to-br dark:from-gray-600 dark:via-gray-700 dark:to-gray-800 dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),inset_0_-2px_4px_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:bg-gradient-to-tr group-hover:from-[#df1783] group-hover:to-[#fd5d93] group-hover:shadow-none">
+          <span className="material-symbols-rounded text-2xl text-transparent bg-clip-text bg-gradient-to-br from-gray-600 to-gray-800 dark:from-gray-200 dark:to-gray-400 group-hover:text-white group-hover:bg-none">
+            {icon}
+          </span>
         </div>
-      </header>
+      </div>
     );
 
+    // Updated Header to use name
+    const Header = ({ onSuggestionClick, userName }) => {
+      return (
+        <header className={'flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:pt-24 lg:pt-28'}>
+          <div className="max-w-4xl mx-auto">
+            <div>
+              <h1 className="text-5xl sm:text-6xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-purple-500">
+                {userName ? `Hello, ${userName}` : 'Hello, there'}
+              </h1>
+              <p className="text-4xl sm:text-5xl font-medium text-gray-400 dark:text-gray-500 mt-2">How can I help you today?</p>
+            </div>
+            <div className="mt-16 sm:mt-24">
+              <div className="flex gap-5 pb-4 -mx-4 px-4 overflow-x-auto">
+                {SUGGESTIONS.map((s, i) => (
+                  <SuggestionCard 
+                    key={i} 
+                    text={s.text} 
+                    icon={s.icon} 
+                    onClick={() => onSuggestionClick(s.text)} 
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    // FileUploadModal remains unchanged
     const FileUploadModal = ({ uploadedFiles, setUploadedFiles, onClose }) => {
       const [error, setError] = useState(null);
       const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -675,12 +619,8 @@ const SuggestionCard = ({ text, icon, onClick }) => (
         </div>
       );
     };
-    
-    
-    
-    
-    
 
+    // TypingArea remains unchanged
     const TypingArea = ({ onSendMessage, isLoading, theme, toggleTheme, onDeleteChat, onOpenUploadModal, onOpenApiKeyModal, isApiConfigured, uploadedFilesCount }) => {
       const [inputValue, setInputValue] = useState('');
 
@@ -770,16 +710,8 @@ const SuggestionCard = ({ text, icon, onClick }) => (
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
 
-    // Main App Component
+    // Main App Component with name support
     const App = () => {
       const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem("mega-bot-theme");
@@ -794,18 +726,8 @@ const SuggestionCard = ({ text, icon, onClick }) => (
       const [isLoading, setIsLoading] = useState(false);
       const [isFileModalOpen, setFileModalOpen] = useState(false);
       const [uploadedFiles, setUploadedFiles] = useState([]);
-      const [apiKey, setApiKey] = useState(() => {
-        try {
-          return localStorage.getItem('deepseek-api-key') || null;
-        } catch (e) {
-          console.error("Error reading API key:", e);
-          return null;
-        }
-      });
-      
-      
-      
-      
+      const [apiKey, setApiKey] = useState(() => localStorage.getItem('deepseek-api-key') || null);
+      const [userName, setUserName] = useState(() => localStorage.getItem('user-name') || null);
       const [showApiKeyModal, setShowApiKeyModal] = useState(!apiKey);
       const [initError, setInitError] = useState(null);
 
@@ -818,44 +740,53 @@ const SuggestionCard = ({ text, icon, onClick }) => (
         setTheme(prev => prev === 'dark' ? 'light' : 'dark');
       }, []);
 
-      
-      
-      
-      const handleSaveApiKey = useCallback((key) => {
-        try {
-    localStorage.setItem('deepseek-api-key', key);
-    setApiKey(key);
-    setShowApiKeyModal(false);
-    setInitError(null);
-          
-          
-            // More robust check:
-if (messages.length === 0) {
-  setMessages([{
-    id: 'bot-welcome',
-    sender: 'bot',
-    text: "Hi there! I'm AIBAD...",
-    isError: false
-  }]);
-}
-  } catch (e) {
-    console.error("Failed to save API key:", e);
-    setInitError("Failed to save API key. Please check your browser settings.");
-  }
-}, [messages]);
+
+
+
+
+       const handleSaveApiKey = useCallback((key, name = '') => {
+      try {
+        localStorage.setItem('deepseek-api-key', key);
+        if (name) {
+          localStorage.setItem('user-name', name);
+          setUserName(name);
+        } else {
+          localStorage.removeItem('user-name');
+          setUserName(null);
+        }
+        setApiKey(key);
+        setShowApiKeyModal(false);
+        setInitError(null);
+        
+        // Only set welcome message if there are no existing messages
+        if (messages.length === 0) {
+          setMessages([{
+            id: 'bot-welcome',
+            sender: 'bot',
+            text: name 
+              ? `Hi ${name}! I'm AIBAD, your AI Business Assistant. How can I help you today?`
+              : "Hi there! I'm AIBAD, your AI Business Assistant. How can I help you today?",
+            isError: false
+          }]);
+        }
+      } catch (e) {
+        console.error("Failed to save settings:", e);
+        setInitError("Failed to save settings. Please check your browser settings.");
+      }
+    }, [messages]);
+    
+    
+    
+    
 
       const handleDeleteApiKey = useCallback(() => {
         localStorage.removeItem('deepseek-api-key');
+        localStorage.removeItem('user-name');
         setApiKey(null);
+        setUserName(null);
         setShowApiKeyModal(true);
         setMessages([]);
       }, []);
-
-
-
-
-
-
 
       const handleSendMessage = useCallback(async (inputText) => {
         if (!inputText.trim() || isLoading || !apiKey) return;
@@ -962,25 +893,26 @@ if (messages.length === 0) {
         );
       }
 
-      return (
-        <div className="flex flex-col h-screen max-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-          {messages.length === 0 ? (
-            <Header onSuggestionClick={handleSuggestionClick} />
-          ) : (
-            <ChatView messages={messages} />
-          )}
-          
-          <TypingArea
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            theme={theme}
-            toggleTheme={toggleTheme}
-            onDeleteChat={handleDeleteChat}
-            onOpenUploadModal={() => setFileModalOpen(true)}
-            onOpenApiKeyModal={() => setShowApiKeyModal(true)}
-            isApiConfigured={!!apiKey}
-            uploadedFilesCount={uploadedFiles.length}
-          />
+    return (
+      <div className="flex flex-col h-screen max-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        {/* Modified this condition to show Header when no user messages exist */}
+        {messages.filter(m => m.sender === MessageSender.USER).length === 0 ? (
+          <Header onSuggestionClick={handleSuggestionClick} userName={userName} />
+        ) : (
+          <ChatView messages={messages} />
+        )}
+        
+        <TypingArea
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onDeleteChat={handleDeleteChat}
+          onOpenUploadModal={() => setFileModalOpen(true)}
+          onOpenApiKeyModal={() => setShowApiKeyModal(true)}
+          isApiConfigured={!!apiKey}
+          uploadedFilesCount={uploadedFiles.length}
+        />
           
           {showApiKeyModal && (
             <ApiKeyModal
@@ -1005,14 +937,10 @@ if (messages.length === 0) {
         </div>
       );
     };
-    
-    
-    // At the bottom of your script, right before rendering:
-document.addEventListener('DOMContentLoaded', function() {
-  lucide.createIcons();
-});
 
-    
+    document.addEventListener('DOMContentLoaded', function() {
+      lucide.createIcons();
+    });
 
     // Render the app
     const root = ReactDOM.createRoot(document.getElementById('root'));
